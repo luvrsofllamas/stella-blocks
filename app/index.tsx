@@ -1,6 +1,24 @@
 import { Canvas, Rect } from "@shopify/react-native-skia";
 import { useState } from "react";
 import { View, useWindowDimensions, Text } from "react-native";
+import { Map } from "@/components/Map";
+
+const map = [
+  "XXXXXXXXXX",
+  "X     X  X",
+  "XX OOO   X",
+  "X  ...   X",
+  "X   XX   X",
+  "X   X  X X",
+  "X   X  X X",
+  "X   X    X",
+  "X       XX",
+  "XXXXXXXXXX",
+]
+
+function wouldCollideWithWall(x, y, map) {
+  return map[y][x] === "X";
+}
 
 function constrainValue(value) {
   return Math.max(Math.min(value, 9), 0);
@@ -36,17 +54,28 @@ export default function Index() {
     size: gameField.blockSize,
   });
 
+  function updatePlayerPosition(dx, dy) {
+    const x = player.x + dx;
+    const y = player.y + dy;
+    if (wouldCollideWithWall(x, y, map)) {
+      return;
+    }
+
+    setPlayer({ ...player, x: constrainValue(x), y: constrainValue(y) });
+  }
+
   const buttons = {
-    up: () => setPlayer({ ...player, y: constrainValue(player.y - 1) }),
-    down: () => setPlayer({ ...player, y: constrainValue(player.y + 1) }),
-    left: () => setPlayer({ ...player, x: constrainValue(player.x - 1) }),
-    right: () => setPlayer({ ...player, x: constrainValue(player.x + 1) }),
+    up: () => updatePlayerPosition(0, -1),
+    down: () => updatePlayerPosition(0, 1),
+    left: () => updatePlayerPosition(-1, 0),
+    right: () => updatePlayerPosition(1, 0),
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "gray", paddingTop: 80 }}>
       <View style={{ flex: 1, justifyContent: "center", alignItems: 'center' }}>
         <Canvas style={{ backgroundColor: 'white', height: gameField.height, width: gameField.width }}>
+          <Map map={map} blockSize={gameField.blockSize} />
           <Rect
             height={player.size}
             width={player.size}
