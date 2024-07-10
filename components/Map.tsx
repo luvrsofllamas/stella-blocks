@@ -1,51 +1,24 @@
-import React from 'react';
-import { Rect } from '@shopify/react-native-skia';
-import { getMapWallCoordinates } from '@/util/map';
-
+import React from "react";
+import { Rect } from "@shopify/react-native-skia";
+import { getMapWallCoordinates } from "@/util/map";
 
 interface MapProps {
   map: string[];
   blockSize: number;
 }
 
-interface Coordinate {
-  x: number;
-  y: number;
-  type: string;
-}
-
 export const Map: React.FC<MapProps> = ({ map, blockSize }) => {
-
   const renderMapWalls = (): JSX.Element[] => {
     const coordinates = getMapWallCoordinates(map);
 
-    return coordinates.map((coordinate, index) => {
+    const walls: JSX.Element[] = [];
+
+    coordinates.forEach((coordinate, index) => {
       switch (coordinate.type) {
-        case "block":
-          return (
-            <>
-            <Rect
-              key={index}
-              x={coordinate.x * blockSize + 2}
-              y={coordinate.y * blockSize + 2}
-              width={blockSize - 4}
-              height={blockSize - 4}
-              color="blue"
-            />
-            <Rect
-              key={`${index}-inner`}
-              x={coordinate.x * blockSize + blockSize / 2 - blockSize / 4}
-              y={coordinate.y * blockSize + blockSize / 2 - blockSize / 4}
-              width={blockSize / 2}
-              height={blockSize / 2}
-              color="lightblue"
-            />
-            </>
-          );
         case "wall":
-          return (
+          walls.push(
             <Rect
-              key={index}
+              key={`${index}-wall`}
               x={coordinate.x * blockSize}
               y={coordinate.y * blockSize}
               width={blockSize}
@@ -53,11 +26,11 @@ export const Map: React.FC<MapProps> = ({ map, blockSize }) => {
               color="black"
             />
           );
+          break;
         case "placeholder":
-        default:
-          return (
+          walls.push(
             <Rect
-              key={index}
+              key={`${index}-placeholder`}
               x={coordinate.x * blockSize + blockSize / 2 - blockSize / 8}
               y={coordinate.y * blockSize + blockSize / 2 - blockSize / 8}
               width={blockSize / 8}
@@ -66,12 +39,9 @@ export const Map: React.FC<MapProps> = ({ map, blockSize }) => {
             />
           );
       }
-  });
+    });
+    return walls;
   };
 
-  return (
-    <>
-      {renderMapWalls()}
-    </>
-  );
+  return <>{renderMapWalls()}</>;
 };

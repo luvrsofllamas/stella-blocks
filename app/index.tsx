@@ -1,9 +1,11 @@
-import { Canvas, Rect } from "@shopify/react-native-skia";
-import { useState } from "react";
-import { View, useWindowDimensions, Text } from "react-native";
+import { Canvas, Circle, Group } from "@shopify/react-native-skia";
+import { useEffect, useState } from "react";
+import { View, useWindowDimensions, Text, Alert } from "react-native";
 import { Map } from "@/components/Map";
+import { getCoordinatesForElementType } from "@/util/map";
+import { Blocks } from '@/components/Blocks';
 
-const map = [
+const map1 = [
   "XXXXXXXXXX",
   "X     X  X",
   "XX OOO   X",
@@ -16,12 +18,39 @@ const map = [
   "XXXXXXXXXX",
 ]
 
+const map = [
+  "XXXXXXXXXX",
+  "X     X  X",
+  "XX  O    X",
+  "X  ...   X",
+  "X   XXO  X",
+  "X   X  X X",
+  "X   X  X X",
+  "X  OX    X",
+  "X       XX",
+  "XXXXXXXXXX",
+]
+
+const initialBlockCoordinates = getCoordinatesForElementType(map, "O");
+
 function wouldCollideWithWall(x, y, map) {
   return map[y][x] === "X";
 }
 
+function wouldCollideWithBlock(x, y, blockCoordinates) {
+  return blockCoordinates.filter(({ x: blockX, y: blockY }) => blockX === x && blockY === y);
+}
+
 function constrainValue(value) {
   return Math.max(Math.min(value, 9), 0);
+}
+
+function wouldCollideWithPlaceholder(x, y, map) {
+  return map[y][x] === ".";
+}
+
+function doAllBlocksCollideWithPlaceholder(blockCoordinates, map) {
+  return blockCoordinates.every(({ x, y }) => wouldCollideWithPlaceholder(x, y, map));
 }
 
 const Button = ({ onPress, title, orientation }) => (
@@ -49,10 +78,12 @@ export default function Index() {
   };
 
   const [player, setPlayer] = useState({
-    x: 0,
-    y: 0,
+    x: 1,
+    y: 1,
     size: gameField.blockSize,
   });
+
+  const [blockCoordinates, setBlockCoordinates] = useState(initialBlockCoordinates);
 
   function updatePlayerPosition(dx, dy) {
     const x = player.x + dx;
@@ -61,8 +92,34 @@ export default function Index() {
       return;
     }
 
+    const collidedBlocks = wouldCollideWithBlock(x, y, blockCoordinates);
+
+    if (collidedBlocks.length) {
+      const collidedBlock = collidedBlocks[0];
+      // check if block would collide with wall in new position
+      if (wouldCollideWithWall(x + dx, y + dy, map)) {
+        // if so, nobody can move
+        return;
+      }
+      // if not, block can move in same direction
+      const newBlockCoordinates = blockCoordinates.map((block) => {
+        if (block.x === collidedBlock.x && block.y === collidedBlock.y) {
+          return { x: block.x + dx, y: block.y + dy };
+        }
+        return block;
+      });
+      setBlockCoordinates(newBlockCoordinates);
+    }
+
     setPlayer({ ...player, x: constrainValue(x), y: constrainValue(y) });
   }
+
+  useEffect(() => {
+    if (doAllBlocksCollideWithPlaceholder(blockCoordinates, map)) {
+      console.log("You won!");
+      Alert.alert("You are a winner!!!")
+    }
+  }, [blockCoordinates]);
 
   const buttons = {
     up: () => updatePlayerPosition(0, -1),
@@ -76,13 +133,36 @@ export default function Index() {
       <View style={{ flex: 1, justifyContent: "center", alignItems: 'center' }}>
         <Canvas style={{ backgroundColor: 'white', height: gameField.height, width: gameField.width }}>
           <Map map={map} blockSize={gameField.blockSize} />
-          <Rect
-            height={player.size}
-            width={player.size}
-            x={player.x * player.size}
-            y={player.y * player.size}
+          <Blocks blockCoords={blockCoordinates} blockSize={gameField.blockSize} />
+          <Group>
+          <Circle
+            r={player.size / 2}
+            cx={player.x * player.size + player.size / 2}
+            cy={player.y * player.size + player.size / 2}
+            color="yellow"
+          />
+          <Circle
+            key="player-left-eye"
+            r={2}
+            cx={player.x * player.size + player.size / 2 - player.size / 7}
+            cy={player.y * player.size + player.size / 2 - player.size / 8}
             color="red"
           />
+          <Circle
+            key="player-right-eye"
+            r={2}
+            cx={player.x * player.size + player.size / 2 + player.size / 7}
+            cy={player.y * player.size + player.size / 2 - player.size / 8}
+            color="red"
+          />
+          <Circle
+            key="player-mouth"
+            r={6}
+            cx={player.x * player.size + player.size / 2}
+            cy={player.y * player.size + player.size / 2 + player.size / 5}
+            color="red"
+          />
+          </Group>
         </Canvas>
       </View>
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

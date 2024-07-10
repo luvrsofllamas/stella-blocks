@@ -22,3 +22,17 @@ export function getMapWallCoordinates(map: string[]): {x: number, y: number, typ
 
   return coordinates;
 }
+
+export function getCoordinatesForElementType(map: string[], type: string): {x: number, y: number }[] {
+  const coordinates = [];
+
+  for (let i = 0; i < map.length; i++) {
+    for (let j = 0; j < map[i].length; j++) {
+      if (map[i][j] === type) {
+        coordinates.push({x: j, y: i });
+      }
+    }
+  }
+
+  return coordinates;
+}
