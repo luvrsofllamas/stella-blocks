@@ -1,13 +1,28 @@
 
 import React from 'react';
-import { View, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import useKeypress from 'react-use-keypress';
 
 interface ControlsProps {
   onPressDirection: (delta: { x: number, y: number }) => void;
 }
 
 export const Controls: React.FC<ControlsProps> = ({ onPressDirection }) => {
+  useKeypress(['ArrowLeft', 'ArrowRight', "ArrowUp", "ArrowDown"], (event) => {
+    if (event.key === 'ArrowLeft') {
+      onPressDirection({ x: -1, y: 0 });
+    }
+    if (event.key === 'ArrowRight') {
+      onPressDirection({ x: 1, y: 0 });
+    }
+    if (event.key === 'ArrowUp') {
+      onPressDirection({ x: 0, y: -1 });
+    }
+    if (event.key === 'ArrowDown') {
+      onPressDirection({ x: 0, y: 1 });
+    }
+  });
   return (
     <View style={styles.container}>
       <View style={styles.row}>

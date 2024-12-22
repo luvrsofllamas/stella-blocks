@@ -1,4 +1,4 @@
-const level1 = [
+const testLevel = [
   "XXXXXXXXXX",
   "X   P X  X",
   "XX  O    X",
@@ -9,6 +9,17 @@ const level1 = [
   "X  OX    X",
   "X       XX",
   "XXXXXXXXXX",
+]
+
+const level1 = [
+  "   XXX  ",
+  "   X.X  ",
+  "XXXX X  ",
+  "X. OOXXX",
+  "XXX PO.X",
+  "  XOXXXX",
+  "  X.X   ",
+  "  XXX   ",
 ]
 
 export const levels = [level1]
