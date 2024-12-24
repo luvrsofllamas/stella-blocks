@@ -3,9 +3,10 @@ import { Button, View, ViewStyle, TouchableOpacity, Text } from "react-native";
 import { Map } from "@/components/Map";
 import { Sprites } from "@/components/Sprites";
 import { levels } from "@/lib/levels";
-import { getInitialPositions, updateSpritePositions } from "@/lib/movement";
+import { getInitialPositions, updateSpritePositions, canMoveToCell } from "@/lib/movement";
 import { Controls } from "@/components/Controls";
 import { AntDesign } from "@expo/vector-icons";
+import { TouchableOverlay } from "@/components/TouchableOverlay";
 
 export default function Index() {
   const [level, setLevel] = useState(0);
@@ -35,7 +36,17 @@ export default function Index() {
     }
     setLevel(level - 1);
     setSprites(getInitialPositions(levels[level - 1]));
-  };
+  }; 
+
+  const tryMoveToCell = (x: number, y: number) => {
+    console.log("blah")
+    if (canMoveToCell(x, y, map, sprites)) {
+      const player = sprites.find((sprite) => sprite.type === "player");
+      if (!player) return;
+      player.position = { x, y };
+      setSprites([...sprites]);
+    }
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F5FCFF" }}>
@@ -62,6 +73,7 @@ export default function Index() {
         <View>
           <Map map={map} size={30} />
           <Sprites sprites={sprites} size={30} />
+          <TouchableOverlay map={map} size={30} onPressCell={tryMoveToCell} />
         </View>
       </View>
       <Controls onPressDirection={onPressDirection} />

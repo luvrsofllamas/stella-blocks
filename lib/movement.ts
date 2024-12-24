@@ -110,3 +110,41 @@ export function updateSpritePositions(
 
   playerSprite.position = newPlayerPosition;
 }
+
+export function canMoveToCell(x: number, y: number, map: Map, sprites: Sprite[]): boolean {
+  const playerSprite = sprites.find(sprite => sprite.type === "player");
+  if (!playerSprite) return false;
+
+  const queue: Position[] = [playerSprite.position];
+  const visited: Set<string> = new Set();
+  visited.add(`${playerSprite.position.x},${playerSprite.position.y}`);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    if (current.x === x && current.y === y) {
+      return true;
+    }
+
+    const neighbors = [
+      { x: current.x + 1, y: current.y },
+      { x: current.x - 1, y: current.y },
+      { x: current.x, y: current.y + 1 },
+      { x: current.x, y: current.y - 1 }
+    ];
+
+    for (const neighbor of neighbors) {
+      if (
+        neighbor.y >= 0 && neighbor.y < map.length &&
+        neighbor.x >= 0 && neighbor.x < map[0].length &&
+        map[neighbor.y][neighbor.x] !== 'X' &&
+        !sprites.some(sprite => sprite.type === 'box' && sprite.position.x === neighbor.x && sprite.position.y === neighbor.y) &&
+        !visited.has(`${neighbor.x},${neighbor.y}`)
+      ) {
+        queue.push(neighbor);
+        visited.add(`${neighbor.x},${neighbor.y}`);
+      }
+    }
+  }
+
+  return false;
+}

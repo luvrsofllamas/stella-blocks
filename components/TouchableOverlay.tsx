@@ -1,38 +1,15 @@
 import React from "react";
 import { Pressable, View } from "react-native";
 
-type BlockProps = {
-  type: string;
+type TouchableBlockProps = {
   size: number;
   onPressCell?: (x: number, y: number) => void;
   x: number;
   y: number;
 };
 
-const Block: React.FC<BlockProps> = ({ type, size, onPressCell, x, y }) => {
-  let backgroundColor: string;
+const Block: React.FC<TouchableBlockProps> = ({ size, onPressCell, x, y }) => {
   let innerComponent = undefined;
-
-  switch (type) {
-    case "X":
-      backgroundColor = "black";
-      break;
-    case ".":
-      backgroundColor = "white";
-      innerComponent = (
-        <View
-          style={{
-            width: size / 2,
-            height: size / 2,
-            backgroundColor: "blue",
-            borderRadius: size / 4,
-          }}
-        />
-      );
-      break;
-    default:
-      backgroundColor = "white";
-  }
 
   const myOnPressCell = () => {
     if (onPressCell) {
@@ -46,11 +23,9 @@ const Block: React.FC<BlockProps> = ({ type, size, onPressCell, x, y }) => {
         style={[
           $block,
           {
-            backgroundColor,
+            backgroundColor: "transparent",
             width: size,
             height: size,
-            justifyContent: "center",
-            alignItems: "center",
           },
         ]}
       >
@@ -60,13 +35,13 @@ const Block: React.FC<BlockProps> = ({ type, size, onPressCell, x, y }) => {
   );
 };
 
-type SokobanMapProps = {
+type TouchableOverlayProps = {
   map: string[];
   size?: number;
   onPressCell?: (x: number, y: number) => void;
 };
 
-export const Map: React.FC<SokobanMapProps> = ({
+export const TouchableOverlay: React.FC<TouchableOverlayProps> = ({
   map,
   size = 8,
   onPressCell,
@@ -78,7 +53,6 @@ export const Map: React.FC<SokobanMapProps> = ({
           {row.split("").map((cell, cellIndex) => (
             <Block
               key={cellIndex}
-              type={cell}
               size={size}
               onPressCell={onPressCell}
               y={rowIndex}
@@ -94,6 +68,11 @@ export const Map: React.FC<SokobanMapProps> = ({
 // Styles as individual variables
 const $container = {
   flexDirection: "column",
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 } as const;
 
 const $row = {
@@ -104,11 +83,6 @@ const $block = {
   width: 8,
   height: 8,
   borderWidth: 1,
-  borderColor: "gray",
+  borderColor: "transparent",
 } as const;
 
-const $appContainer = {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-};
