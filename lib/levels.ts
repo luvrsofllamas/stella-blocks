@@ -22,4 +22,15 @@ const level1 = [
   "  XXX   ",
 ]
 
-export const levels = [level1]
+const level8 = [
+  " XXXXX  ",
+  "XX . X  ",
+  "X O.OXX ",
+  "X  .O X ",
+  "X O. PX ",
+  "X O.OXX ",
+  "XX . X  ",
+  "X XXXX  ",
+]
+
+export const levels = [level1, level8]
